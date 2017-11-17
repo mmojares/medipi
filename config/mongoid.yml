@@ -1,0 +1,42 @@
+production:
+  clients:
+    default:
+      uri: <%= ENV['MONGOHQ_URL'] %>
+      options:
+        skip_version_check: true
+        safe: true
+  options:
+    raise_not_found_error: false
+staging:
+  clients:
+    default:
+      uri: mongodb://medifi_db_staging:4&04$ay3Ps7L@ec2-54-153-115-81.us-west-1.compute.amazonaws.com:27017/medifi_staging
+  options:
+    raise_not_found_error: false
+# development:
+#   clients:
+#     default:
+#       uri: mongodb://medifi_db_staging:4&04$ay3Ps7L@ec2-54-153-115-81.us-west-1.compute.amazonaws.com:27017/medifi_staging
+#   options:
+#     raise_not_found_error: false
+development:
+  clients:
+    default:
+      database: medifi_development
+      hosts:
+        - localhost:27017
+      options:
+  options:
+    raise_not_found_error: false
+test:
+  clients:
+    default:
+      database: medifi_test
+      hosts:
+        - localhost:27017
+      options:
+        max_retries: 1
+        retry_interval: 0
+  options:
+    raise_not_found_error: false
+        
