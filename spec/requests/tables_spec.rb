@@ -56,11 +56,69 @@ RSpec.describe "table test", :type => :request do
   describe "create table" do
 
     context "create table with valid data" do
-
       before do
-        post "/graphql", params: { 'query' => 'query { tablelists { id name }}' }, headers: headers
+        post "/graphql", params: { 'query' => 'mutation { create_table(name: "Mahogany table", quantity: 5) { id name quantity } }' }, headers: headers
       end
+
+      it { expect(response).to have_http_status(:ok) }
+      it { expect(JSON.parse(response.body)['data'].count).to eq 1 }
+
+    end
+
+    context "create table with invalid data" do
+      before do
+        post "/graphql", params: { 'query' => 'mutation { create_table(name: "", quantity: 5) { id name quantity } }' }, headers: headers
+      end
+
+      it { expect(response).to have_http_status(:ok) } 
+      it { expect(JSON.parse(response.body)['errors'][0]['message']).to eq "invalid data" } 
+      it { expect(JSON.parse(response.body)['errors'].count).to eq 1 }
         
+    end
+  end
+
+  describe "update table" do
+    let!(:table) { create :table }
+    context " update table with valid data " do
+      before do
+        post "/graphql", params: { 'query' => "mutation { update_table(table_id: \"#{table.id}\", name: \"your table\", quantity: 1000 ) { id } }" }, headers: headers
+      end
+
+      it { expect(response).to have_http_status(:ok) }
+      it { expect(JSON.parse(response.body)['data']['update_table'].count).to eq  1 }
+
+    end
+
+    context "update table with invalid data" do
+      before do
+        post "/graphql", params: { 'query' => "mutation { update_table(table_id: \"#{table.id}\", name:\"\", quantity: 1000 ) { id } }" }, headers: headers
+      end
+
+      it { expect(response).to have_http_status (:ok) }
+      it { expect(JSON.parse(response.body)['errors'][0]['message']).to eq "invalid data" }
+      it { expect(JSON.parse(response.body)['data']['update_table']).to eq nil }
+
+    end
+  
+  end
+
+  describe "delete table" do
+    let!(:table) { create :table }
+    context " Delete table with valid id" do
+      before do
+        post "/graphql", params: { 'query' => "mutation { delete_table(table_id: \"#{table.id}\") }" }, headers: headers
+      end
+
+      it { expect(response).to have_http_status(:ok) }
+      it { expect(JSON.parse(response.body)['data']['delete_table']).to eq "true" }
+    
+    end
+    context " Delete table with invalid id" do
+      before do
+        post "/graphql", params: { 'query' => "mutation { delete_table(table_id: \"1234}\") }" }, headers: headers
+      end
+      it { expect(response).to have_http_status (:ok) }
+      it { expect(JSON.parse(response.body)['errors'][0]['message']).to eq "Cannot find id" }
     end
 
   end

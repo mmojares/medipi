@@ -11,10 +11,12 @@ class Resolvers::CreateTable < GraphQL::Function
     # args - are the arguments passed
     # _ctx - is the GraphQL context (which would be discussed later)
     def call(_obj, args, _ctx)
-      Table.create!(
+      create_table = Table.new(
         name: args[:name],
         quantity: args[:quantity],
       )
+      return create_table if create_table.save
+      GraphQL::ExecutionError.new("invalid data")
     end
     
   end

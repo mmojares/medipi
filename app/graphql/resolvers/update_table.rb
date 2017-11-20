@@ -1,6 +1,6 @@
 class Resolvers::UpdateTable < GraphQL::Function
     # arguments passed as "args"
-    argument :id, !types.ID
+    argument :table_id, !types.ID
     argument :name, !types.String
     argument :quantity, !types.Int
   
@@ -12,9 +12,10 @@ class Resolvers::UpdateTable < GraphQL::Function
     # args - are the arguments passed
     # _ctx - is the GraphQL context (which would be discussed later)
     def call(_obj, args, _ctx)
-        update_table = Tables.find(args[:id])
-        update_table.update_attirbutes!(name: args[:name], quantity: args[:quantity])
 
+        update_table = Table.find(args[:table_id])
+        return update_table if update_table.update_attributes(name: args[:name], quantity: args[:quantity])
+        GraphQL::ExecutionError.new("invalid data")
     end
     
   end
