@@ -1,20 +1,14 @@
 class Resolvers::CreateUser < GraphQL::Function
-    AuthProviderInput = GraphQL::InputObjectType.define do
-      name 'AuthProviderSignupData'
-  
-      argument :email, Types::AuthProviderEmailInput
-    end
-  
-    argument :name, !types.String
-    argument :authProvider, !AuthProviderInput
+    argument :email, types.String
+    argument :password, types.String
+    argument :name, types.String
   
     type Types::UserType
   
     def call(_obj, args, _ctx)
-      User.create!(
-        name: args[:name],
-        email: args[:authProvider][:email][:email],
-        password: args[:authProvider][:email][:password]
-      )
+
+      user = User.new(email: args[:email],password: args[:password],name: args[:name])
+      return user if user.save
+      GraphQL::ExecutionError.new("Invalid data")
     end
   end

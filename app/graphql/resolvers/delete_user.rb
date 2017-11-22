@@ -1,17 +1,14 @@
 class Resolvers::DeleteUser < GraphQL::Function
-    AuthProviderInput = GraphQL::InputObjectType.define do
-      name 'deleteUser'
+  argument :user_id, types.ID
+  argument :email, types.String
+  argument :password, types.String
+  argument :name, types.String
   
-        argument :email, Types::AuthProviderEmailInput
-    end
-    argument :id, !types.ID
-    argument :name, !types.String
-    argument :authProvider, !AuthProviderInput
-  
-    type Types::UserType
-  
-    def call(_obj, args, _ctx)
-        delete_user = User.find(args[:id])
-        delete_user.destroy
-    end
+  type  !types.String
+
+  def call(_obj, args, _ctx)
+    user_account = User.find(args[:user_id])
+    return user_account.destroy if user_account
+    GraphQL::ExecutionError.new("Cannot find id")
   end
+end
